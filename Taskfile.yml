@@ -1,0 +1,7 @@
+version: "3"
+
+tasks:
+  invoice:
+    desc: Render the invoice template and generate a PDF
+    cmds:
+      - uv run --cache-dir .uv-cache python src/generate_invoice.py {{.CLI_ARGS}}

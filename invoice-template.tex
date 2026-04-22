@@ -1,0 +1,89 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{booktabs}
+\usepackage{setspace}
+\usepackage{fancyhdr}
+\usepackage{calc}
+
+\setlength{\parindent}{0pt}
+\setstretch{1.15}
+
+%-------------------------- Header/Footer --------------------------
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0pt}
+
+% \fancyfoot[C]{Page \thepage\ of \pageref{LastPage}}
+
+\begin{document}
+
+\newcommand{\gras}[1]{
+    {\sffamily\bfseries\large #1}
+}
+
+%-------------------------- Title & Top Block --------------------------
+\begin{flushright}
+    {\Large \textbf{INVOICE}}\\[4pt]
+    \textbf{Number:} \texttt{[[INVOICE_NUMBER]]}\\ % change this
+    \textbf{Date:} \texttt{[[INVOICE_DATE]]}\\ % change this
+    \textbf{Period:} [[INVOICE_PERIOD]]\\ % change this
+\end{flushright}
+
+\vspace{0.9em}
+
+\noindent
+\begin{tabularx}{\textwidth}{@{}X X@{}}
+    \gras{From} & \gras{Bill To} \\
+    \addlinespace[0.6em]
+    \textbf{[[EMPLOYEE_NAME]]} & \textbf{[[EMPLOYER_NAME]]} \\
+    [[EMPLOYEE_ADDRESS_LINE_1]] & [[EMPLOYER_ADDRESS_LINE_1]] \\
+    [[EMPLOYEE_ADDRESS_LINE_2]] & [[EMPLOYER_ADDRESS_LINE_2]] \\
+    \texttt{[[EMPLOYEE_PERSONAL_EMAIL]]} & \texttt{[[EMPLOYER_EMAIL]]} \\
+    \texttt{[[EMPLOYEE_EMAIL]]} \\
+    \texttt{[[EMPLOYEE_PHONE]]} & \\
+\end{tabularx}
+
+\vspace{3em}
+
+%-------------------------- Services Table --------------------------
+\gras{Services}
+
+\vspace{0.8em}
+Providing consulting services on infrastructure and other software
+work for expert-facing tools and internal teams.
+
+Team name: [[TEAM_NAME]]
+
+Manager: [[MANAGER_NAME]].
+
+
+\vspace{4em}
+
+\renewcommand{\arraystretch}{1.4}
+\noindent
+\begin{tabularx}{\textwidth}{@{}X>{\raggedleft\arraybackslash}p{3cm}>{\raggedleft\arraybackslash}p{3cm}@{}}
+    \toprule
+    \textbf{Description} & & \\
+    \midrule
+    % Change this to reflect actual work. Keep it very high level and generic.
+    [[SERVICE_DESCRIPTION]] & & \\
+    \midrule
+    & \textbf{Active time} & \textbf{[[HOURS_WORKED]]} hours \\ % change this
+    \textbf{Hourly rate:} \$[[HOURLY_RATE]] (USD) & \textbf{Total due} & \textbf{\$[[TOTAL_DUE]]} (USD) \\  % change and do some math
+    \bottomrule
+\end{tabularx}
+\vspace{0.5em}
+
+%-------------------------- Payment Details --------------------------
+
+\vspace{4em}
+
+Payment details are setup in Rippling and Ramp.
+
+\vspace{1.5em}
+
+\vfill
+\end{document}
