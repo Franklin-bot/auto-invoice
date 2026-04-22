@@ -17,6 +17,7 @@ from reportlab.pdfgen import canvas
 ROOT = Path(__file__).resolve().parent.parent
 ENV_PATH = ROOT / ".env"
 TEMPLATE_PATH = ROOT / "invoice-template.tex"
+EMAIL_TEMPLATE_PATH = ROOT / "email_template.yml"
 OUTPUT_DIR = ROOT / "invoices"
 MAC_TEX_BIN_DIRS = (
     Path("/Library/TeX/texbin"),
@@ -156,6 +157,27 @@ def render_template(template: str, values: dict[str, str]) -> str:
     for key, value in values.items():
         rendered = rendered.replace(f"[[{key}]]", value)
     return rendered
+
+
+def load_email_template(template_path: Path) -> dict[str, str]:
+    raw_template = template_path.read_text()
+    matches = re.findall(r'(\w+):\s*"(.*?)"', raw_template, flags=re.DOTALL)
+    if not matches:
+        raise ValueError(f"Could not parse email template: {template_path}")
+
+    parsed: dict[str, str] = {}
+    for key, value in matches:
+        parsed[key] = value.replace("\\n", "\n").strip()
+    return parsed
+
+
+def render_email_template(template: dict[str, str], values: dict[str, str]) -> str:
+    subject = template.get("subject", "")
+    body = template.get("body", "")
+    for key, value in values.items():
+        subject = subject.replace(key, value)
+        body = body.replace(key, value)
+    return f"Subject: {subject}\n\n{body}\n"
 
 
 def make_output_stem(invoice_number: str) -> str:
@@ -377,8 +399,10 @@ def main() -> None:
     hours_worked = prompt_decimal("Hours worked: ")
     total_due = hourly_rate * hours_worked
     output_stem = make_output_stem(invoice_number)
-    output_path = args.output or OUTPUT_DIR / f"{output_stem}.pdf"
+    output_dir = OUTPUT_DIR / output_stem
+    output_path = args.output or output_dir / f"{output_stem}.pdf"
     tex_output_path = output_path.with_suffix(".tex")
+    email_output_path = output_path.with_name("email.txt")
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -407,16 +431,29 @@ def main() -> None:
         "HOURS_WORKED": format_hours(hours_worked),
         "TOTAL_DUE": format_money(total_due),
     }
+    email_template = load_email_template(EMAIL_TEMPLATE_PATH)
+    email_text = render_email_template(
+        email_template,
+        {
+            "<Client Name>": env_values["EMPLOYER_NAME"],
+            "<start–end date>": f"{start_date} to {end_date}",
+            "<Your Name>": env_values["EMPLOYEE_NAME"],
+            "<Your Phone Number>": env_values["EMPLOYEE_PHONE"],
+        },
+    )
 
     rendered_tex = render_template(raw_template, substitutions)
     tex_output_path.write_text(rendered_tex)
+    email_output_path.write_text(email_text)
 
     if args.skip_pdf:
         print(f"Rendered LaTeX template to {tex_output_path}")
+        print(f"Rendered email template to {email_output_path}")
         return
 
     build_pdf(tex_output_path, output_path, invoice_data)
     print(f"Generated invoice PDF at {output_path}")
+    print(f"Rendered email template to {email_output_path}")
 
     if not args.keep_tex and tex_output_path.exists():
         tex_output_path.unlink()

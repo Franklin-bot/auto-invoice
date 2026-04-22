@@ -27,9 +27,10 @@ The script will prompt for:
 
 ## Output
 
-- The default output file is named `invoice-<number>.pdf`.
-- If you run with `--skip-pdf`, the rendered template is written as `invoice-<number>.tex`.
-- Files are written to [`invoices/`](/Users/FranklinZhao/projects/auto-invoice/invoices).
+- Each run writes to `invoices/invoice-<number>/`.
+- The invoice PDF is named `invoice-<number>.pdf`.
+- The rendered email is written as `email.txt`.
+- If you run with `--skip-pdf`, the rendered LaTeX template is written as `invoice-<number>.tex`.
 
 Example:
 
