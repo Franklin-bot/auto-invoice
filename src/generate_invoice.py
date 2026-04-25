@@ -110,7 +110,14 @@ def load_env_file(env_path: Path) -> dict[str, str]:
         if "=" not in line:
             raise ValueError(f"Invalid .env line: {raw_line!r}")
         key, value = line.split("=", 1)
-        values[key.strip()] = value.strip()
+        cleaned_value = value.strip()
+        if (
+            len(cleaned_value) >= 2
+            and cleaned_value[0] == cleaned_value[-1]
+            and cleaned_value[0] in {"'", '"'}
+        ):
+            cleaned_value = cleaned_value[1:-1]
+        values[key.strip()] = cleaned_value
     return values
 
 
